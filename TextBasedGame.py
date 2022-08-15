@@ -1,8 +1,13 @@
 # Jake Brown IT140 Intro to Scripting
 # Project Two Submission
 
-print('Welcome to the clean up your house before your crazy mother comes over game!')
-print('Travel between rooms and collect all the items before you find the boss!\n')
+# Print welcome screen and basic info.  press any key to start
+def showinstructions():
+    print('\nWelcome to the clean up your house before your crazy mother comes over game!')
+    print('Travel between rooms and collect all the items before you find the villain.')
+    print('Otherwise, she will let out a horrific screech and kill you!\n')
+    print('To navigate, enter room direction. To pick up item enter "yes" at the prompt.\n')
+    advance = input('PRESS ENTER TO START\n\n')
 
 # Dictionary of rooms and moves possible for each room in the game
 rooms = {
@@ -24,7 +29,7 @@ items = {
     'Master Bedroom': 'Stuffed Monkey',
     'Sunroom': 'Ear Plugs',
     'Child Closet': 'Tools',
-    'Child Room': 'Dad\'s Tools',
+    'Child Room': 'Rad Dad T-Shirt',
     'Backyard': 'Squirt Gun',
     'Garage': 'None',
     'Living Room': 'None'
@@ -34,9 +39,9 @@ items = {
 # Define function moveroom
 def moveroom():
     current_position = location_index[0]
-    print('Your current position is the', current_position)
-    print('You may proceed to the following:', rooms[current_position])
-    print('Please enter your move or EXIT to stop\n')
+
+    print('You may proceed to the following:', rooms[current_position], '\n')
+    print('Please enter your move (North/East/South/West) or EXIT to stop\n')
 
     current_possible_moves = []
 
@@ -45,8 +50,6 @@ def moveroom():
         current_possible_moves.append(i)
 
     desired_move = input().upper()
-
-    # FIXME : add a loop that spits out a neater version of directions/locations
 
     # Run if/elif to determine if the input is a valid move
     # If the move is valid, print the move, clear the possible moves list and store location index
@@ -64,32 +67,46 @@ def moveroom():
 
 
 # Define inventory function to process items and inventory
-def inventory():
+def showstatus():
     # Establish local vars for processing and an empty list to store possible items
     current_position = location_index[0]
     current_possible_items = []
     current_room_item = items[current_position]
 
-    # If no item available, then return to loop
-    if current_room_item.upper() == 'VILLAIN' and len(item_collection) < 6:
-        print('You do not have all the items and the Villain has killed you!')
-        print('Game Over!\nWhomp Whomppp')
+    # If statement to capture whether you have all the items
+    # Once all items are captured go find the boss to defeat her
+    # Also let payer know how many more items they need to win
+    if len(item_collection) >= 6 and current_room_item.upper() == 'VILLAIN':
+        print('You won!!!\nYou gathered all the items and defeated the boss!\n\n＼(^o^)／\n\nThanks for playing!')
+        exit()
+    elif current_room_item.upper() == 'VILLAIN' and len(item_collection) < 6:
+        print('You do not have all the items and the crazy mother has killed you!!!')
+        print('You died!\nGame Over!\n')
+        print('░▒▒ 💀 ▒▒░')
         exit()
     elif current_room_item.upper() == 'NONE':
-        print('No items in this room\n')
+        print('There are no items in the', current_position)
         return
 
-    # Print contents of current inventory
-    print('You have collected the following items:', item_collection, '\n')
+    # Print current location and current inventory contents
+    print('Your current position is the', current_position)
+
+    if len(item_collection) < 6:
+        total_items = len(item_collection)
+        print('You have the following items:', item_collection, '\n')
+        print('You need', 6 - total_items, 'more items to win!\n')
+    elif len(item_collection) >= 6:
+        print('YOU HAVE ALL THE ITEMS, GO FIGHT THE BOSS!!!')
 
     # If statement to process if room's item is in your inventory
-    # Prompt user to pick up the item
+    # Prompt user to pick up the item if item not already in inventory
     if current_room_item not in item_collection:
         print('You have come across the item', current_room_item, 'in', current_position)
-        print('Would you like to pick it up?\n')
+        print('Would you like to pick it up? (enter "yes" to pick up item)\n')
         prompt_answer = input().upper()
         if prompt_answer == 'YES':
             item_collection.append(current_room_item)
+            print('Great, you picked up', current_room_item, '\n')
         elif prompt_answer == 'NO':
             print('You need all items to win!')
         current_possible_items.clear()
@@ -97,40 +114,18 @@ def inventory():
         print('No items left in room')
 
 
-# Start alive_status bit to 1 indicating player is alive
-# Set inventory status bit to 0 indicating that inventory hasn't been fulfilled
+# Start alive_status bit to 1 indicating player is alive and enabling loop to run
 # Establish location list holding the current location and init as Living Room to start game
 alive_status = 1
-inventory_status = 0
 location_index = ['Living Room']
 
 # Establish empty item collection list to store collected items in
 item_collection = []
 
-# establish list of valid move inputs and an empty list of possible moves
-valid_moves = ['NORTH', 'EAST', 'SOUTH', 'WEST']
-
-
-# Define showstatus function that incorporates moveroom and inventory functions
-
-def showstatus():
-    moveroom()
-    inventory()
-
-    # Print inventory items
-    print('You have the following items:', item_collection)
-
-    # If statement to capture whether you have all the items
-    # Once all items are captured, game is over!
-    # Also let payer know how many more items they need to win
-    if len(item_collection) >= 6:
-        print('You won!\nYou gathered all the items.  Thanks for playing!')
-        exit()
-    elif len(item_collection) < 6:
-        total_items = len(item_collection)
-        print('You need', 6 - total_items, 'more items to win!\n')
-
+# Print instructions
+showinstructions()
 
 # While loop to make game run through until you're not alive
 while alive_status > 0:
     showstatus()
+    moveroom()
